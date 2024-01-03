@@ -1,5 +1,5 @@
 import logging
-from slack.slack_logic import handle_app_mentions
+from slack.slack_logic import handle_email
 from slack_bolt import App
 from slack_bolt.adapter.aws_lambda import SlackRequestHandler
 
@@ -7,22 +7,24 @@ from slack_bolt.adapter.aws_lambda import SlackRequestHandler
 app = App(process_before_response=True)
 
 
-@app.event("app_mention")
-def event_test(body, say, logger):
-    handle_app_mentions(body, say, logger)
+@app.action("send-email")
+def send_email(ack, body):
+    ack()
+    handle_email(body)
 
-
-@app.command("/send_email")
-def respond_to_slack_within_3_seconds(ack):
-    ack("Thanks!")
+@app.middleware  # or app.use(log_request)
+def log_request(logger, body, next):
+    logger.debug(body)
+    return next()
 
 
 SlackRequestHandler.clear_all_log_handlers()
 logging.basicConfig(format="%(asctime)s %(message)s", level=logging.DEBUG)
 
 
-def handler(event, context):
-    slack_handler = SlackRequestHandler(app=app)
+def lambda_handler(event, context):
+    logging.info(event)
+    slack_handler = SlackRequestHandler(app)
     return slack_handler.handle(event, context)
 
 
