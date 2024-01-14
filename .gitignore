@@ -165,3 +165,8 @@ cython_debug/
 #.idea/
 ngrok-stable-linux-amd64.zip
 
+packer_1.7.8_linux_amd64.zip
+aws/install
+aws/README.md
+aws/THIRD_PARTY_LICENSES
+src/google/google_logic.py
