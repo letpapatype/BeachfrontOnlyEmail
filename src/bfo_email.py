@@ -1,16 +1,22 @@
 import logging
+import os
 from slack.slack_logic import handle_email
 from slack_bolt import App
 from slack_bolt.adapter.aws_lambda import SlackRequestHandler
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # process_before_response must be True when running on FaaS
-app = App(process_before_response=True)
+# pass in token, signing secret, and process_before_response
+app = App(token=os.environ['SLACK_BOT_TOKEN'], signing_secret=os.environ['SLACK_SIGNING_SECRET'], process_before_response=True)
+logging.basicConfig(level=logging.DEBUG)
 
 
 @app.action("send-email")
-def send_email(ack, body):
+def send_email(ack, body, logger, client):
     ack()
-    handle_email(body)
+    handle_email(body, client, logger)
 
 @app.middleware  # or app.use(log_request)
 def log_request(logger, body, next):

@@ -1,16 +1,17 @@
-from slack_sdk.web import WebClient
+from slack_bolt import WebClient
 import os
 import logging
 
-slack_client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])
 
 
-def handle_email(body, say, logger):
+def handle_email(body, client, logger):
     logger.info(body)
+
     email = body["actions"][0]["value"]
+    print(f"email: {email}")
 
     # open a view with a form to send an email
-    response = slack_client.views_open(
+    response = client.views_open(
         trigger_id=body["trigger_id"],
         view={
             "type": "modal",
@@ -27,7 +28,7 @@ def handle_email(body, say, logger):
             "blocks": [
                 {
                     "type": "input",
-                    "block_id": "send-email-body",
+                    "block_id": f"send-email-body-{email}",
                     "element": {
                         "type": "plain_text_input",
                         "action_id": "to",
@@ -44,3 +45,6 @@ def handle_email(body, say, logger):
             ]
         }
     )
+
+    logger.info(response)
+    print(response)
